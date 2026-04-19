@@ -47,6 +47,10 @@ resource "aws_instance" "app_server" {
 
 resource "aws_eip" "my_eip" {
   domain = "vpc"
+
+  tags = {
+    Name = "cloud-app-eip"
+  }
 }
 
 resource "aws_eip_association" "eip_assoc" {
