@@ -56,3 +56,6 @@ docker-compose.override.yml
 # =========================
 .vscode/
 .idea/
+
+# MyNotes
+catatan.txt
