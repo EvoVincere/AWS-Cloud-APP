@@ -78,7 +78,7 @@ Ini bikin proses deploy jadi lebih cepat dan konsisten.
 
 Aplikasi bisa diakses di:
 
-http://43.218.111.163
+http://16.79.31.234
 AWS-Cloud-APP
 ---
 
