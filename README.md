@@ -1,39 +1,45 @@
-# AWS Cloud App Deployment (Terraform + Docker + CI/CD)
+# AWS Cloud App Deployment (Terraform + Docker + CI/CD + Monitoring)
 
 ## Overview
 
-Project ini aku buat untuk latihan sekaligus membuktikan kemampuan dalam membangun dan deploy aplikasi di cloud environment secara end-to-end.
+Project ini aku buat sebagai latihan untuk benar-benar ngerasain gimana proses deploy aplikasi di cloud dari awal sampai bisa diakses publik.
 
-Di project ini, aku tidak hanya deploy aplikasi, tapi juga:
+Jadi bukan cuma deploy app aja, tapi sekalian nyentuh beberapa hal yang sering dipakai di real-world:
 
-* setup infrastructure pakai Terraform
-* containerize aplikasi pakai Docker
-* setup CI/CD sederhana
-* dan monitoring basic menggunakan AWS
+* Infrastructure as Code pakai Terraform
+* Containerization pakai Docker
+* CI/CD sederhana pakai GitHub Actions
+* Setup domain + DNS pakai Cloudflare
+* Monitoring pakai Prometheus & Grafana
 
-Tujuannya biar lebih mendekati real-world scenario, bukan sekadar project latihan biasa.
+---
+
+## Live Demo
+
+https://iqbaalcloudporto.site
 
 ---
 
 ## What I Built
 
-* Provision EC2 instance di AWS menggunakan Terraform
-* Setup security group (SSH, HTTP, HTTPS)
-* Deploy aplikasi ke EC2 menggunakan Docker
-* Konfigurasi Nginx sebagai reverse proxy
-* Setup CI/CD sederhana dengan GitHub Actions
-* Monitoring basic menggunakan AWS CloudWatch
+Di project ini aku setup:
+
+* Provision EC2 di AWS pakai Terraform
+* Setup security group (SSH, HTTP, dll)
+* Deploy aplikasi (React static) pakai Docker + Nginx
+* Setup CI/CD sederhana (auto deploy dari GitHub)
+* Hubungkan domain ke server via Cloudflare
+* Tambahin monitoring pakai Prometheus & Grafana
 
 ---
 
 ## Architecture (Simple View)
 
-```text id="0f5yfa"
-User → EC2 → Nginx → Docker Container (App)
-             ↓
-        CloudWatch
-             ↑
-      GitHub Actions
+```text
+User → Cloudflare → EC2
+                      ├── Docker (Nginx + App)
+                      ├── Prometheus
+                      └── Grafana
 ```
 
 ---
@@ -45,51 +51,57 @@ User → EC2 → Nginx → Docker Container (App)
 * Docker
 * Nginx
 * GitHub Actions
-* CloudWatch
+* Cloudflare
+* Prometheus
+* Grafana
 
 ---
 
 ## How It Works
 
-Secara garis besar flow-nya seperti ini:
+Flow-nya kurang lebih seperti ini:
 
 1. Infrastructure dibuat pakai Terraform (EC2 + security group)
-2. Aplikasi di-containerize menggunakan Docker
-3. EC2 dikonfigurasi untuk menjalankan container
-4. Nginx digunakan untuk handle request dari user
-5. Setiap ada update ke repo, GitHub Actions akan trigger deployment ke server
+2. Aplikasi di-build dan dijalankan dalam Docker container
+3. Nginx digunakan untuk serve static file
+4. Domain diarahkan ke server lewat Cloudflare
+5. Setiap ada update di repo, GitHub Actions akan deploy ulang ke EC2
+6. Prometheus collect metrics, Grafana digunakan untuk visualisasi
 
 ---
 
 ## CI/CD Flow
 
-Setiap kali ada perubahan di branch utama:
+Setiap ada perubahan di branch utama:
 
-* GitHub Actions jalan otomatis
-* Build Docker image
-* SSH ke EC2
-* Replace container lama dengan yang baru
+* GitHub Actions akan jalan otomatis
+* Build & deploy ke EC2 via SSH
+* Container lama diganti dengan yang baru
 
-Ini bikin proses deploy jadi lebih cepat dan konsisten.
+Tujuannya biar deploy lebih cepat dan konsisten tanpa manual step.
 
 ---
 
-## Live Demo
+## Monitoring
 
-Aplikasi bisa diakses di:
+Untuk monitoring, aku pakai:
 
-http://16.79.31.234
-AWS-Cloud-APP
+* Prometheus → untuk collect metrics dari server
+* Grafana → untuk visualisasi (CPU, RAM, dll)
+
+Masih basic, tapi sudah cukup buat lihat kondisi server secara real-time.
+
 ---
 
 ## Project Structure
 
-```id="1rclhn"
+```
 .
 ├── app/
 ├── docker/
 ├── nginx/
 ├── terraform/
+├── monitoring/
 ├── .github/workflows/
 └── README.md
 ```
@@ -98,26 +110,28 @@ AWS-Cloud-APP
 
 ## Challenges
 
-Beberapa hal yang sempat jadi kendala waktu ngerjain project ini:
+Beberapa kendala yang sempat aku temui:
 
-* Gagal SSH ke EC2 karena belum attach key pair
-* Beberapa error waktu setup Docker di instance
-* Harus trial & error untuk setup CI/CD supaya bisa deploy otomatis
-* Adaptasi dengan Terraform terutama saat pertama kali apply/destroy resource
+* Issue SSH karena key pair belum ke-attach
+* Error Docker karena resource EC2 terbatas
+* Setup CI/CD yang sempat trial & error
+* DNS propagation waktu setup domain di Cloudflare
+* Container tidak auto start saat instance restart
 
-Tapi dari situ justru jadi lebih paham flow-nya secara keseluruhan.
+Tapi justru dari situ jadi lebih ngerti flow-nya end-to-end.
 
 ---
 
 ## What I Learned
 
-Dari project ini, aku jadi lebih paham:
+Dari project ini aku jadi lebih paham:
 
-* Cara provisioning infrastructure pakai Terraform
-* Cara deploy aplikasi ke cloud (AWS EC2)
-* Konsep containerization dengan Docker
-* Flow CI/CD sederhana dari GitHub ke server
-* Basic monitoring menggunakan CloudWatch
+* Provisioning infrastructure pakai Terraform
+* Deploy aplikasi ke AWS EC2
+* Cara kerja Docker dalam production sederhana
+* Flow CI/CD dari GitHub ke server
+* Basic monitoring dengan Prometheus & Grafana
+* Konsep DNS & routing lewat Cloudflare
 
 ---
 
@@ -125,10 +139,11 @@ Dari project ini, aku jadi lebih paham:
 
 Kalau dikembangkan lagi, aku ingin:
 
-* Tambah HTTPS (SSL)
-* Gunakan domain sendiri
-* Tambah Terraform module biar lebih scalable
-* Tambah monitoring yang lebih advanced (Prometheus/Grafana)
+* Setup HTTPS full (end-to-end SSL)
+* Tambah alerting di Grafana
+* Monitoring container (bukan cuma server)
+* Improve security (restrict access ke Grafana)
+* Refactor Terraform jadi module
 
 ---
 
